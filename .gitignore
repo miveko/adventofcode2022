@@ -1,6 +1,6 @@
 # Folders
-/.idea/
-/out/
+/.idea/*
+/out/*
 
 # Compiled class file
 *.class
