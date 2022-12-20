@@ -9,12 +9,23 @@ abstract public class Puzzle {
     private final String className;
     private String answerPartOne;
     private String answerPartTwo;
+    private long time;
     protected void setAnswerPartOne(String answerPartOne) {
-        this.answerPartOne = answerPartOne;
+        long interval = System.currentTimeMillis() - time;
+        if(interval > 10000)
+            System.out.printf("PartOne: %s\tFound in %d seconds%n", answerPartOne, (interval /1000));
+        else
+            System.out.printf("PartOne: %s\tFound in %d miliseconds%n", answerPartOne, interval);
+        time = System.currentTimeMillis();
     }
 
     protected void setAnswerPartTwo(String answerPartTwo) {
-        this.answerPartTwo = answerPartTwo;
+        long interval = System.currentTimeMillis() - time;
+        if(interval > 10000)
+            System.out.printf("PartTwo: %s\tFound in %d seconds%n", answerPartTwo, (interval /1000));
+        else
+            System.out.printf("PartTwo: %s\tFound in %d miliseconds%n", answerPartTwo, interval);
+        time = System.currentTimeMillis();
     }
     public Puzzle() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -28,8 +39,8 @@ abstract public class Puzzle {
         for(String inputFile : args) {
             System.out.println("Input: " + inputFile);
             Scanner inputFileReader = getInputFileReader(inputFile);
+            time = System.currentTimeMillis();
             solution(inputFileReader);
-            showResults();
         }
     }
 
@@ -63,8 +74,4 @@ abstract public class Puzzle {
 
     protected abstract void solution(Scanner inputReader);
 
-    protected void showResults() {
-        System.out.println("PartOne: " + answerPartOne);
-        System.out.println("PartTwo: " + answerPartTwo);
-    }
 }
