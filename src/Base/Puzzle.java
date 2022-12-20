@@ -7,8 +7,6 @@ import java.util.Scanner;
 
 abstract public class Puzzle {
     private final String className;
-    private String answerPartOne;
-    private String answerPartTwo;
     private long time;
     protected void setAnswerPartOne(String answerPartOne) {
         long interval = System.currentTimeMillis() - time;
