@@ -80,14 +80,18 @@ public class Day22_MonkeyMap extends Puzzle {
         for(char ch : path.toCharArray()) {
             if(ch == 'R') {
                 int steps = Integer.parseInt(num.toString());
+//                System.out.println("Steps: " + steps);
                 move(steps, isPartOne);
                 num = new StringBuilder();
                 turnRight();
+//                System.out.println("Right ");
             } else if(ch == 'L') {
                 int steps = Integer.parseInt(num.toString());
+//                System.out.println("Steps: " + steps);
                 move(steps, isPartOne);
                 num = new StringBuilder();
                 turnLeft();
+//                System.out.println("Left ");
             } else {
                 num.append(ch);
             }
@@ -101,7 +105,6 @@ public class Day22_MonkeyMap extends Puzzle {
             if(map[nextPos.x][nextPos.y] == '.') {
                 position = nextPos;
                 lastDir = null;          //!!!!!!!UGLY!!!!!!!//
-                System.out.println(position.x + " " + position.y);
             } else if(map[nextPos.x][nextPos.y] == '#') {
                 if(lastDir != null) {            //!!!!!!!UGLY!!!!!!!//
                     direction = lastDir;         //!!!!!!!UGLY!!!!!!!//
@@ -174,6 +177,7 @@ public class Day22_MonkeyMap extends Puzzle {
         Point nextPos = new Point(position.x + direction.x, position.y + direction.y);
         Point currPosRelative = new Point(position.x % cubeSide, position.y % cubeSide);
         if(!inMapBounds(nextPos) || map[nextPos.x][nextPos.y] == ' ') {
+            System.out.print(position.x + " " + position.y + " -> ");
             Point currentSide = new Point(position.x / cubeSide, position.y / cubeSide + horizCorrection);  //coordinates on COLORS
             teleFrom = new TelePoint(direction, currentSide, currPosRelative);
             teleTo = new TelePoint();
@@ -192,11 +196,12 @@ public class Day22_MonkeyMap extends Puzzle {
             }
 
             calcCoordsAfterRotation();
-            return  new Point(teleTo.getSideCell().x * cubeSide + teleTo.getRelCoordinates().x,
+            nextPos = new Point(teleTo.getSideCell().x * cubeSide + teleTo.getRelCoordinates().x,
                     (teleTo.getSideCell().y - horizCorrection) * cubeSide + teleTo.getRelCoordinates().y);
-        }                                                          //Used in PartTwo
+            System.out.println(nextPos.x + " " + nextPos.y);
+        }
 
-        return nextPos;
+        return nextPos;                                                          //Used in PartTwo
     }
     private char getNextColor(Point currentSide, Point dir ) {
         Point nextSide = new Point(currentSide.x + dir.x, currentSide.y + dir.y);           //coordinates on COLORS
@@ -227,7 +232,7 @@ public class Day22_MonkeyMap extends Puzzle {
         Point nextDir = new Point(teleTo.getDirection().x * -1, teleTo.getDirection().y * -1);
         lastDir = new Point(direction.x, direction.y);
         teleTo.setRelCoordinates(new Point(teleFrom.getRelCoordinates().x, teleFrom.getRelCoordinates().y));
-        while (!direction.equals(nextDir)) {
+        do {
             Point newPos = new Point();
             if(direction.y == -1 || direction.y == 1) {
                 newPos.x = cubeSide - 1 - teleTo.getRelCoordinates().y;
@@ -242,6 +247,17 @@ public class Day22_MonkeyMap extends Puzzle {
             }
             teleTo.setRelCoordinates(newPos);
             turnRight();
+        }while (!direction.equals(nextDir));
+
+        //Next correction is applied after 3 rotations
+        if(direction.x == -1) {
+            teleTo.getRelCoordinates().x = cubeSide - 1;
+        } else if(direction.x == 1) {
+            teleTo.getRelCoordinates().x = 0;
+        } else if(direction.y == -1) {
+            teleTo.getRelCoordinates().y = cubeSide - 1;
+        } else if(direction.y == 1) {
+            teleTo.getRelCoordinates().y = 0;
         }
     }
 
