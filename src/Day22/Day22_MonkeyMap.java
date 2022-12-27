@@ -192,8 +192,8 @@ public class Day22_MonkeyMap extends Puzzle {
             }
 
             calcCoordsAfterRotation();
-            return  new Point((teleTo.getSideCell().x) * cubeSide + teleTo.getRelCoordinates().x,
-                    (teleTo.getSideCell().y - horizCorrection * cubeSide) + teleTo.getRelCoordinates().y);
+            return  new Point(teleTo.getSideCell().x * cubeSide + teleTo.getRelCoordinates().x,
+                    (teleTo.getSideCell().y - horizCorrection) * cubeSide + teleTo.getRelCoordinates().y);
         }                                                          //Used in PartTwo
 
         return nextPos;
