@@ -1,14 +1,11 @@
 package Day22;
 
 import Base.Puzzle;
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 public class Day22_MonkeyMap extends Puzzle {
-
-
     char[][] COLORS = new char[][] {{' ', 'G', 'W', 'B', ' '}, {'O', 'G', 'R', 'B', 'O'},
                                     {' ', 'G', 'Y', 'B', ' '}, {' ', 'O', 'O', 'O', ' '}};
     Map<Character, Character> OPP_SIDE = new HashMap<Character, Character>(){{put('W', 'Y');put('R', 'O');put('G', 'B');
@@ -20,8 +17,6 @@ public class Day22_MonkeyMap extends Puzzle {
     int cubeSide, horizCorrection;
     Map<Character, Point> sidePosition;
     Map<Point, Character> positionSide;
-    TelePoint teleFrom, teleTo;     //!!!!!probably can be removed!!!!!!//
-
 
     public static void main(String[] args) {
         Puzzle puzzle = new Day22_MonkeyMap();
@@ -80,18 +75,14 @@ public class Day22_MonkeyMap extends Puzzle {
         for(char ch : path.toCharArray()) {
             if(ch == 'R') {
                 int steps = Integer.parseInt(num.toString());
-//                System.out.println("Steps: " + steps);
                 move(steps, isPartOne);
                 num = new StringBuilder();
                 turnRight();
-//                System.out.println("Right ");
             } else if(ch == 'L') {
                 int steps = Integer.parseInt(num.toString());
-//                System.out.println("Steps: " + steps);
                 move(steps, isPartOne);
                 num = new StringBuilder();
                 turnLeft();
-//                System.out.println("Left ");
             } else {
                 num.append(ch);
             }
@@ -177,28 +168,25 @@ public class Day22_MonkeyMap extends Puzzle {
         Point nextPos = new Point(position.x + direction.x, position.y + direction.y);
         Point currPosRelative = new Point(position.x % cubeSide, position.y % cubeSide);
         if(!inMapBounds(nextPos) || map[nextPos.x][nextPos.y] == ' ') {
-            System.out.print(position.x + " " + position.y + " -> ");
             Point currentSide = new Point(position.x / cubeSide, position.y / cubeSide + horizCorrection);  //coordinates on COLORS
-            teleFrom = new TelePoint(direction, currentSide, currPosRelative);
-            teleTo = new TelePoint();
             char nextColor = getNextColor(currentSide, direction);
             Point nextSide = sidePosition.get(nextColor);
-            teleTo.setSideCell(nextSide);
+            Point nextDirection = null;
             char currColor = COLORS[currentSide.x][currentSide.y];
             if(getNextColor(nextSide, new Point(0, 1)) == currColor) {
-                teleTo.setDirection(new Point(0, 1));
+                nextDirection = new Point(0, 1);
             } else if(getNextColor(nextSide, new Point(0, -1)) == currColor) {
-                teleTo.setDirection(new Point(0, -1));
+                nextDirection = new Point(0, -1);
             } else if(getNextColor(nextSide, new Point(1, 0)) == currColor) {
-                teleTo.setDirection(new Point(1, 0));
+                nextDirection = new Point(1, 0);
             } else if(getNextColor(nextSide, new Point(-1, 0)) == currColor) {
-                teleTo.setDirection(new Point(-1, 0));
+                nextDirection = new Point(-1, 0);
             }
 
-            calcCoordsAfterRotation();
-            nextPos = new Point(teleTo.getSideCell().x * cubeSide + teleTo.getRelCoordinates().x,
-                    (teleTo.getSideCell().y - horizCorrection) * cubeSide + teleTo.getRelCoordinates().y);
-            System.out.println(nextPos.x + " " + nextPos.y);
+            assert nextDirection != null;
+            Point nextRelCoordinates = calcCoordsAfterRotation(nextDirection, currPosRelative);
+            nextPos = new Point(nextSide.x * cubeSide + nextRelCoordinates.x,
+                    (nextSide.y - horizCorrection) * cubeSide + nextRelCoordinates.y);
         }
 
         return nextPos;                                                          //Used in PartTwo
@@ -210,7 +198,6 @@ public class Day22_MonkeyMap extends Puzzle {
             return positionSide.get(nextSide);
         if(positionSide.get(nextOppSide) != null)
             return OPP_SIDE.get((positionSide.get(nextOppSide)));
-        char nextColor = ' ';
         if(dir.y == 0) {  //direction is UP or DOWN
             if(nextSide.x == -1) return 'O';
             else if(positionSide.get(new Point(nextSide.x, nextSide.y - 1)) != null){
@@ -228,37 +215,39 @@ public class Day22_MonkeyMap extends Puzzle {
         }
     }
 
-    private void calcCoordsAfterRotation() {
-        Point nextDir = new Point(teleTo.getDirection().x * -1, teleTo.getDirection().y * -1);
+    private Point calcCoordsAfterRotation(Point nextDirection, Point relCoordinates) {
+        Point nextDir = new Point(nextDirection.x * -1, nextDirection.y * -1);
         lastDir = new Point(direction.x, direction.y);
-        teleTo.setRelCoordinates(new Point(teleFrom.getRelCoordinates().x, teleFrom.getRelCoordinates().y));
+        Point nextRelCoordinates = new Point(relCoordinates.x, relCoordinates.y);
         do {
             Point newPos = new Point();
             if(direction.y == -1 || direction.y == 1) {
-                newPos.x = cubeSide - 1 - teleTo.getRelCoordinates().y;
+                newPos.x = cubeSide - 1 - nextRelCoordinates.y;
             } else {
-                newPos.x = teleTo.getRelCoordinates().y;
+                newPos.x = nextRelCoordinates.y;
             }
 
             if(direction.x == -1) {
-                newPos.y = teleTo.getRelCoordinates().x;
+                newPos.y = nextRelCoordinates.x;
             } else {
-                newPos.y = cubeSide - 1 - teleTo.getRelCoordinates().x;
+                newPos.y = cubeSide - 1 - nextRelCoordinates.x;
             }
-            teleTo.setRelCoordinates(newPos);
+            nextRelCoordinates = new Point(newPos);
             turnRight();
         }while (!direction.equals(nextDir));
 
         //Next correction is applied after 3 rotations
         if(direction.x == -1) {
-            teleTo.getRelCoordinates().x = cubeSide - 1;
+            nextRelCoordinates.x = cubeSide - 1;
         } else if(direction.x == 1) {
-            teleTo.getRelCoordinates().x = 0;
+            nextRelCoordinates.x = 0;
         } else if(direction.y == -1) {
-            teleTo.getRelCoordinates().y = cubeSide - 1;
+            nextRelCoordinates.y = cubeSide - 1;
         } else if(direction.y == 1) {
-            teleTo.getRelCoordinates().y = 0;
+            nextRelCoordinates.y = 0;
         }
+
+        return nextRelCoordinates;
     }
 
     private boolean inMapBounds(Point pos) {
