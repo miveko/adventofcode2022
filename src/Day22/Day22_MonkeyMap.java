@@ -171,7 +171,7 @@ public class Day22_MonkeyMap extends Puzzle {
             Point currentSide = new Point(position.x / cubeSide, position.y / cubeSide + horizCorrection);  //coordinates on COLORS
             char nextColor = getNextColor(currentSide, direction);
             Point nextSide = sidePosition.get(nextColor);
-            Point nextDirection = null;
+            Point nextDirection = new Point();
             char currColor = COLORS[currentSide.x][currentSide.y];
             if(getNextColor(nextSide, new Point(0, 1)) == currColor) {
                 nextDirection = new Point(0, 1);
@@ -183,7 +183,6 @@ public class Day22_MonkeyMap extends Puzzle {
                 nextDirection = new Point(-1, 0);
             }
 
-            assert nextDirection != null;
             Point nextRelCoordinates = calcCoordsAfterRotation(nextDirection, currPosRelative);
             nextPos = new Point(nextSide.x * cubeSide + nextRelCoordinates.x,
                     (nextSide.y - horizCorrection) * cubeSide + nextRelCoordinates.y);
@@ -216,7 +215,7 @@ public class Day22_MonkeyMap extends Puzzle {
     }
 
     private Point calcCoordsAfterRotation(Point nextDirection, Point relCoordinates) {
-        Point nextDir = new Point(nextDirection.x * -1, nextDirection.y * -1);
+        Point nextDirOpp = new Point(nextDirection.x * -1, nextDirection.y * -1);
         lastDir = new Point(direction.x, direction.y);
         Point nextRelCoordinates = new Point(relCoordinates.x, relCoordinates.y);
         do {
@@ -234,7 +233,7 @@ public class Day22_MonkeyMap extends Puzzle {
             }
             nextRelCoordinates = new Point(newPos);
             turnRight();
-        }while (!direction.equals(nextDir));
+        }while (!direction.equals(nextDirOpp));
 
         //Next correction is applied after 3 rotations
         if(direction.x == -1) {
