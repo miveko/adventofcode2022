@@ -6,17 +6,19 @@ import java.util.*;
 import java.util.List;
 
 public class Day22_MonkeyMap extends Puzzle {
-    char[][] COLORS = new char[][] {{' ', 'G', 'W', 'B', ' '}, {'O', 'G', 'R', 'B', 'O'},
-                                    {' ', 'G', 'Y', 'B', ' '}, {' ', 'O', 'O', 'O', ' '}};
-    Map<Character, Character> OPP_SIDE = new HashMap<Character, Character>(){{put('W', 'Y');put('R', 'O');put('G', 'B');
-                                                                             put('Y', 'W');put('O', 'R');put('B', 'G');}};
-
+    char[][] COLORS = new char[][] {{' ', 'G', 'W', 'B', ' '},
+                                    {'O', 'G', 'R', 'B', 'O'},
+                                    {' ', 'G', 'Y', 'B', ' '},
+                                    {' ', 'O', 'O', 'O', ' '}};
+    Map<Character, Character> OPP_SIDE = new HashMap<Character, Character>()
+                                {{put('W', 'Y');put('R', 'O');put('G', 'B');
+                                  put('Y', 'W');put('O', 'R');put('B', 'G');}};
     char[][] map;
     String path;
-    Point direction, lastDir, position;
+    Point direction, lastDirection, position;
     int cubeSide, horizCorrection;
-    Map<Character, Point> sidePosition;
-    Map<Point, Character> positionSide;
+    Map<Character, Point> sidePosition;     //used to get position by color
+    Map<Point, Character> positionSide;     //used to get color by position
 
     public static void main(String[] args) {
         Puzzle puzzle = new Day22_MonkeyMap();
@@ -95,11 +97,11 @@ public class Day22_MonkeyMap extends Puzzle {
             Point nextPos = (partOne)   ? getNextPosition(position) :  getNextPosition();
             if(map[nextPos.x][nextPos.y] == '.') {
                 position = nextPos;
-                lastDir = null;          //!!!!!!!UGLY!!!!!!!//
+                lastDirection = null;
             } else if(map[nextPos.x][nextPos.y] == '#') {
-                if(lastDir != null) {            //!!!!!!!UGLY!!!!!!!//
-                    direction = lastDir;         //!!!!!!!UGLY!!!!!!!//
-                    lastDir = null;                 //!!!!!!!UGLY!!!!!!!//
+                if(lastDirection != null) {
+                    direction = lastDirection;
+                    lastDirection = null;
                 }
                 break;
             }
@@ -151,19 +153,6 @@ public class Day22_MonkeyMap extends Puzzle {
         }
     }                                   //counterclockwise
 
-    private int getPassword() {
-        int result = (position.x + 1) * 1000 + (position.y + 1) * 4;
-        if(direction.x == -1) {
-            result += 3;
-        } else if(direction.x == 1) {
-            result += 1;
-        } else if(direction.y == -1)  {
-            result += 2;
-        }
-
-        return result;
-    }
-
     private Point getNextPosition() {                               //Used in PartTwo
         Point nextPos = new Point(position.x + direction.x, position.y + direction.y);
         Point currPosRelative = new Point(position.x % cubeSide, position.y % cubeSide);
@@ -188,8 +177,8 @@ public class Day22_MonkeyMap extends Puzzle {
                     (nextSide.y - horizCorrection) * cubeSide + nextRelCoordinates.y);
         }
 
-        return nextPos;                                                          //Used in PartTwo
-    }
+        return nextPos;
+    }                           //Used in PartTwo
     private char getNextColor(Point currentSide, Point dir ) {
         Point nextSide = new Point(currentSide.x + dir.x, currentSide.y + dir.y);           //coordinates on COLORS
         Point nextOppSide = new Point(currentSide.x - dir.x, currentSide.y - dir.y);
@@ -216,9 +205,9 @@ public class Day22_MonkeyMap extends Puzzle {
 
     private Point calcCoordsAfterRotation(Point nextDirection, Point relCoordinates) {
         Point nextDirOpp = new Point(nextDirection.x * -1, nextDirection.y * -1);
-        lastDir = new Point(direction.x, direction.y);
+        lastDirection = new Point(direction.x, direction.y);
         Point nextRelCoordinates = new Point(relCoordinates.x, relCoordinates.y);
-        do {
+        while (!direction.equals(nextDirOpp)) {
             Point newPos = new Point();
             if(direction.y == -1 || direction.y == 1) {
                 newPos.x = cubeSide - 1 - nextRelCoordinates.y;
@@ -233,7 +222,7 @@ public class Day22_MonkeyMap extends Puzzle {
             }
             nextRelCoordinates = new Point(newPos);
             turnRight();
-        }while (!direction.equals(nextDirOpp));
+        }
 
         //Next correction is applied after 3 rotations
         if(direction.x == -1) {
@@ -252,4 +241,17 @@ public class Day22_MonkeyMap extends Puzzle {
     private boolean inMapBounds(Point pos) {
         return (pos.x >= 0 && pos.y >= 0 && pos.x < map.length && pos.y < map[0].length);
     }
+
+    private int getPassword() {
+        int result = (position.x + 1) * 1000 + (position.y + 1) * 4;
+        if(direction.x == -1) {
+            result += 3;
+        } else if(direction.x == 1) {
+            result += 1;
+        } else if(direction.y == -1)  {
+            result += 2;
+        }
+
+        return result;
+    }                               //calculate final result
 }
