@@ -100,8 +100,30 @@ public class Day24_BlizzardBasin extends Puzzle {
             reached.add(new Point(nextPoint));
     }
 
+    private char updatePossibleMove(char nextMove, char possibleMove) {
+        if(nextMove == ' ')
+            nextMove = possibleMove;
+        else {
+            String lastOptions = "";
+            if(unUsedOptions.size() > 0)
+                lastOptions = unUsedOptions.get(unUsedOptions.size() - 1);
+            if(lastOptions.startsWith(String.valueOf(minute))) {
+                lastOptions += possibleMove;
+                unUsedOptions.set(unUsedOptions.size() - 1, lastOptions);
+            } else {
+                unUsedOptions.add(String.valueOf(minute) + ':' + possibleMove);
+                blizzardsState.put(minute, new ArrayList<>());
+                myState.put(minute, new Point(me.location));
+                for(Blizzard bl : blizzard)
+                    blizzardsState.get(minute).add(new Blizzard(bl));
+            }
+        }
 
-    private int findBestPath() {
+        return nextMove;
+    }
+
+    //Next three methods compose the brute force solution (high complexity)
+    private int findBestPath_bruteForce() {
         blizzardsState = new HashMap<>();
         myState = new HashMap<>();
         minute = 0;
@@ -175,28 +197,6 @@ public class Day24_BlizzardBasin extends Puzzle {
         return nextMove;
     }
 
-    private char updatePossibleMove(char nextMove, char possibleMove) {
-        if(nextMove == ' ')
-            nextMove = possibleMove;
-        else {
-            String lastOptions = "";
-            if(unUsedOptions.size() > 0)
-                lastOptions = unUsedOptions.get(unUsedOptions.size() - 1);
-            if(lastOptions.startsWith(String.valueOf(minute))) {
-                lastOptions += possibleMove;
-                unUsedOptions.set(unUsedOptions.size() - 1, lastOptions);
-            } else {
-                unUsedOptions.add(String.valueOf(minute) + ':' + possibleMove);
-                blizzardsState.put(minute, new ArrayList<>());
-                myState.put(minute, new Point(me.location));
-                for(Blizzard bl : blizzard)
-                    blizzardsState.get(minute).add(new Blizzard(bl));
-            }
-        }
-
-        return nextMove;
-    }
-
     private void revertToAnotherOption() {
         String lastOptions = unUsedOptions.get(unUsedOptions.size() - 1);
         minute = Integer.parseInt(lastOptions.split(":")[0]);
@@ -214,5 +214,10 @@ public class Day24_BlizzardBasin extends Puzzle {
         } else {
             unUsedOptions.set(unUsedOptions.size() - 1, lastOptions);
         }
+    }
+
+    //TODO: find the exact shortest path using the updateReachedList() method
+    private int findBestPath_iterativeNextToTheLast() {
+        return 0;
     }
 }
