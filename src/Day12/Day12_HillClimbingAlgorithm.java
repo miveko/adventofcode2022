@@ -8,14 +8,15 @@ public class Day12_HillClimbingAlgorithm extends Puzzle {
 //    private List<Point>[] map, transitionFrom, transitionTo;
     private char[][] map;
     int width, heigth;
+    Point me, goal;
+    List<Point> exactPath;
+    boolean foundPathToA;
     public static void main(String[] args) {
         Puzzle puzzle = new Day12_HillClimbingAlgorithm();
         puzzle.execute(args);
     }
 
     protected void solution(Scanner inputReader) {
-        Point me = new Point();
-        Point goal = new Point();
         List<List<Character>> mapList = new ArrayList<>();
         int i = 0;
         char c;
@@ -47,11 +48,13 @@ public class Day12_HillClimbingAlgorithm extends Puzzle {
                 map[i][j] = mapList.get(i).get(j);
         }
 
-        findShortestPath(me, goal);
+        foundPathToA = false;
+        exactPath = new LinkedList<>();
+//        findShortestPath(me, goal);
+        findExactShortestPath();    //not required by the assignment
     }
 
     private void findShortestPath(Point start, Point end) {
-        boolean foundPathToA = false;
         int steps = 0;
         Set<Point> current;
         Set<Point> next = new HashSet<>();
@@ -69,20 +72,42 @@ public class Day12_HillClimbingAlgorithm extends Puzzle {
                     next.add(new Point(p.x, p.y - 1));
                 if(p.y + 1 < width && map[p.x][p.y] - map[p.x][p.y + 1] < 2)
                     next.add(new Point(p.x, p.y + 1));
+                if(isStartPointReached(p, next, steps, start))
+                    break;
             }
 
-            if(!foundPathToA)
-                for(Point p : next)
-                    if(map[p.x][p.y] == 'a') {
-                        setAnswerPartTwo(String.valueOf(steps));
-                        foundPathToA = true;
-                    }
-
-            if(steps == width * heigth) {
-                System.out.println("Path does not exists!");
+            if(steps >= width * heigth) {
+                System.err.println("Path does not exists!");
             }
         }
+    }
 
-        setAnswerPartOne(String.valueOf(steps));
+    private boolean isStartPointReached(Point p, Set<Point> next, int steps, Point start) {
+        if(!foundPathToA && map[p.x][p.y] == 'a') { //an 'a' has been reached the previous step
+            setAnswerPartTwo(String.valueOf(steps - 1));
+            foundPathToA = true;
+        }
+
+        if(next.contains(me))
+            setAnswerPartOne(String.valueOf(steps));
+
+        if(next.contains(start)) {
+            exactPath.add(p);
+            return true;
+        } else
+            return false;
+    }
+
+    private void findExactShortestPath() {
+        exactPath.add(me);
+        Point currentStart = exactPath.get(0);
+        while (!currentStart.equals(goal)) {
+            findShortestPath(currentStart, goal);
+            currentStart = exactPath.get(exactPath.size() - 1);
+        }
+        //Printing the exact path
+        for(Point p : exactPath)
+            System.out.printf("[%d, %d] -> ", p.x, p.y);
+        System.out.println("Win!");
     }
 }

@@ -6,13 +6,13 @@ import java.util.*;
 import java.util.List;
 
 public class Day22_MonkeyMap extends Puzzle {
-    char[][] COLORS = new char[][] {{' ', 'G', 'W', 'B', ' '},
-                                    {'O', 'G', 'R', 'B', 'O'},
-                                    {' ', 'G', 'Y', 'B', ' '},
+    char[][] COLORS = new char[][] {{' ', 'G', 'W', 'B', ' '},                      // W : white
+                                    {'O', 'G', 'R', 'B', 'O'},                      // G : green
+                                    {' ', 'G', 'Y', 'B', ' '},                      // B : blue
                                     {' ', 'O', 'O', 'O', ' '}};
-    Map<Character, Character> OPP_SIDE = new HashMap<Character, Character>()
-                                {{put('W', 'Y');put('R', 'O');put('G', 'B');
-                                  put('Y', 'W');put('O', 'R');put('B', 'G');}};
+    Map<Character, Character> OPP_SIDE = new HashMap<Character, Character>()        // R : red
+                                {{put('W', 'Y');put('R', 'O');put('G', 'B');        // Y : yellow
+                                  put('Y', 'W');put('O', 'R');put('B', 'G');}};     // O : orange
     char[][] map;
     String path;
     Point direction, lastDirection, position;
